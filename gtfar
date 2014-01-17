@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# ISI COMMENT #1) WE HARDCODE OUR LOCAL PATH SO WE CAN CALL SCRIPTS IN OUR SRC DIR
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export PATH=$PATH:$DIR
+source $DIR/optparse 
+source $DIR/mini_config.sh
+source $DIR/gtfar_setup.sh
+
+# ISI COMMENT #2) OUR BASH PARSER (OPTPARSE) ALLOWS US TO DECLARE SOME COMMAND LINE OPTIONS
+
+add_title_version "Gtfar (RNA-seq Analysis Pipeline)" "0.0.5"
+add_example "Alignment Step" "map -r myreads.fastq"
+add_arg run "Run Alignment" 
+add_arg map  
+add_option length -l DEFAULT=100 TYPE=NUM INT_MIN=64 INT_MAX=128  INFO='length of reads'
+add_option MULTI=True TYPE=File FILE_EXT=fastq reads   INFO='reads or file in fq format'
+add_option strandRule -s DEFAULT="UNSTRANDED" STR_OPTS=Unstranded,Same,Opposite  INFO='A rule for strandedness (None, Same or Opposite)'
+add_option mismatches -m DEFAULT=3 INT_MIN=0 INT_MAX=8    INFO='The number of mismatches to allow per mapping'
+add_option verbose DEFAULT="True" TYPE=bool  
+add_option outdir -o DEFAULT='workingDir'   INFO='working directory'
+#add_option cliplength -c 25   'length of anchor for gapped alignment'
+#add_option output -o 'outputDir'   'output directory'
+
+
+parseargs $@
+
+##### THE OPTIONS PARSER WILL SUPPLY US WITH THE FOLLOWING VARIABLES ######
+
+# 1) $READS -> ONE OR MORE READ FILES [ FASTQ FORMAT IS REQUIRED ] 
+# 2) $LENGTH -> INTEGER READ LENGTH (Minimum 64, Maximum 128) (DEFAULT 100) 
+# 3) $STRANDRULE -> None, Same, or Opposite 
+
+
+
+
+##### THE OPTIONS PARSER WILL SUPPLY US WITH THE FOLLOWING VARIABLES ######
+
+# 1) $READS -> ONE OR MORE READ FILES [ FASTQ FORMAT IS REQUIRED ] 
+# 2) $LENGTH -> INTEGER READ LENGTH (Minimum 64, Maximum 128) (DEFAULT 100) 
+# 3) $STRANDRULE -> None, Same, or Opposite 
+# 4) $MISMATCHES -> 1,2,3,4,5,6,7 OR 8 mismatches  
+
+#### STEP 1 - VERIFY INPUT PARAMETERS ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------#
+
+
+
+if [ -z $ARGUMENT ]; then
+    echo "An argument is required - choose help"
+elif [ $ARGUMENT == 'MAP' ] || [ $ARGUMENT == 'map' ]; then 
+    MYHOME=$PWD
+    echo "GTFAR-PIPELINE BEGINS" 
+    
+    setup_dirs_refs_and_simlinks
+    cd $OUT
+    
+    SKIP=TRUE
+    #SKIP=FALSE
+    perm_map $EXON_REF "EXONS";   perm_parse $EXON_REF "EXONS"; 
+    perm_map $INTRON_REF "INTRONS"; perm_parse $INTRON_REF "INTRONS" 
+    clip_map $GENE_REF "GENES";  clip_parse $GENE_REF "GENES"
+    perm_map $CHR_REF "AGENOME"; perm_parse $CHR_REF "AGENOME" 
+    clip_map $CHR_GAP_REF "GENOMEGAP"; clip_parse $CHR_GAP_REF "GENOMEGAP"
+    
+    combine_vis_files
+    echo "FINISHED!"
+    exit 
+    ### SUCCESS ###
+    
+    #gene_gap_search $GENE_REF "GAPSEARCH"
+    #exit
+    
+#    splice_find_and_conditional_map $GENES "SPLICE" 
+#    perm_genome_map $GENOME "GENOME"; genome_parse $GENOME "GENOME" 
+#    combine_output $GENOME $INIT_READS 
+    make_bam_files 
+    cd $MYHOME
+    cp -R $WORKING/final_reads $OUTPUT/
+    cp -R $WORKING/results $OUTPUT/
+
+elif [ $ARGUMENT == 'READS' ] || [ $ARGUMENT == 'reads' ]; then
+    #source $DIR/export/uec-gs1/knowles/analysis/tade/gtfar_source/gtfar_analysis_source.sh
+    check_dir $OUTPUT
+    make_read_lists
+    
+
+
+
+fi
+
+
+
